@@ -2,90 +2,67 @@
 
 ### Problem Statement
 ```problem-statement
-hibernate.QueryException: 
-illegal attempt to dereference collection [student0_.id.adresses] with element property reference [id] 
-[SELECT s FROM poc.spring.data.jpa.entities.Student s WHERE s.adresses.id = :aId]
-- here Student entity has List<Address> and we are trying to query student by Address Id
-
+	Using EntityManager to mass update
 ```
 ```java
 
 @SpringBootTest
-class StudentRepositoryTest {
+class StudentEntityManagerTest {
 
 	@Autowired
-	private StudentRepository studentRepository;
+	private StudentEntityManager studentEntityManager;
 	
 	@Test
-	void test_GetStudentByAddressId() {
-		Student entity = new Student();
-		entity.setName("KSC");
+	void test() {
+		Student request = Student.builder().name("KSC").build();
+		studentEntityManager.createStudent(request );
 		
-		List<Address> studentAddresses = new ArrayList<Address>();
-		studentAddresses.add(Address.builder().city("Pune").build());
-		studentAddresses.add(Address.builder().city("Mumbai").build());
-		entity.setAdresses(studentAddresses);
-		Student savedEntity = studentRepository.save(entity);
-	
-		savedEntity = studentRepository.findByAddressId(savedEntity.getAdresses().get(0).getId());
-		System.out.println(savedEntity);
+		Student getStudent = studentEntityManager.getStudentById(1L);
+		System.out.println(getStudent);
+		
+		studentEntityManager.updateStudentsByIds(1L, 2L, 3L);
+		
+		getStudent = studentEntityManager.getStudentById(1L);
+		System.out.println(getStudent);
 	}
 
 }
 
-@Entity
-@Table(name = "students")
-@Getter
-@Setter
-public class Student {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	private String name;
-	
-	@OneToMany(cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "addr_id")
-	private List<Address> adresses;
+@Repository
+@Transactional
+public class StudentEntityManager {
 
+	@Autowired
+	private EntityManager em;
+	
+	public void createStudent(Student request) {
+		em.persist(request);
+	}
+	
+	public Student getStudentById(Long id) {
+		TypedQuery<Student> query = 
+		em.createQuery("Select  c  From Student c where id = "+id, Student.class);
+		return query.getResultList().get(0);
+	}
+	
+	public void updateStudentsByIds(Long... ids) {
+		StringJoiner joiner = new StringJoiner(", "," ( "," )");
+		Stream.of(ids).forEach(id -> joiner.add(id+""));
+		Query query = em.createQuery("Update Student set name = 'new-name'  WHERE id IN "+joiner.toString());
+		query.executeUpdate();
+	}
 }
-
-@Entity
-@Table(name = "student_adresses")
-@Getter
-@Setter
-@Builder
-public class Address {
-	
-	@Id
-	@GeneratedValue
-	private Long id;
-	
-	private String city;
-
-}
-
-public interface StudentRepository extends CrudRepository<Student, Long>{
-
-	// [PROBLEM]
-	// @Query("SELECT s FROM Student s WHERE s.adresses.id = :aId")
-	
-	// [SOLUTION]
-	@Query("SELECT s FROM Student s INNER JOIN s.adresses sa WHERE sa.id = :aId")
-	Student findByAddressId(@Param("aId")Long addressId); 
-}
-
 ```
 
 
-```resolution
-RESOLUTION: 
-		- we write incorrect query as
-			SELECT s FROM Student s WHERE s.adresses.id = :aId
-		
-		- we need to use JOIN as getting Student from addressId requires user-info from Address Table i.e userId.
-			- SELECT s FROM Student s INNER JOIN s.adresses sa WHERE sa.id = :aId
-			refer - https://stackoverflow.com/questions/24750754/org-hibernate-queryexception-illegal-attempt-to-dereference-collection
+### RESOLUTION:
+```resolution 
+	- refer above StudentEntityManagerTest.java
 ```
 
+#### Note -
+```note
+	- @Transaction over StudentEntityManager is mandatory 
+	because we are createing and updating Student records
+
+```
