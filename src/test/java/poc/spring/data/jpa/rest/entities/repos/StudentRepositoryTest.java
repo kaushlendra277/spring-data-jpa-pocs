@@ -1,4 +1,4 @@
-package poc.spring.data.jpa.entities.repos;
+package poc.spring.data.jpa.rest.entities.repos;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import poc.spring.data.jpa.entities.Address;
 import poc.spring.data.jpa.entities.Student;
+import poc.spring.data.jpa.entities.repos.StudentRepository;
 
 @SpringBootTest
 class StudentRepositoryTest {

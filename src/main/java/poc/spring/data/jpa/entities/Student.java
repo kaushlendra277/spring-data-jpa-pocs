@@ -11,7 +11,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
@@ -19,6 +22,9 @@ import lombok.Setter;
 @Table(name = "students")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Student {
 	
 	@Id
@@ -30,5 +36,10 @@ public class Student {
 	@OneToMany(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "addr_id")
 	private List<Address> adresses;
+
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + "]";
+	}
 
 }
