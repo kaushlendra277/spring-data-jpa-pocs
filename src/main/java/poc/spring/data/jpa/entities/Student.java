@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLDeleteAll;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +23,13 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE students SET status_id = 3 WHERE id = ?")
+@SQLDelete(sql = "UPDATE students SET status_id = 3 WHERE id = ?") // THIS IS TRIGGERED when 
+																   // .delete(entity) or .deleteById(id)
+																   // is called on entityManager or xyzRepository
+// FROM Spring boot (v2.2.5.RELEASE) @SQLDelete can perform all delete operation
+//@SQLDeleteAll(sql = "UPDATE students SET status_id = 3 WHERE id = ?")// THIS IS TRIGGERED when 
+																	 // .deleteAll(Iterable<entity>)
+																	 // is called on entityManager or xyzRepository
 public class Student extends BaseEntity {
 	
 	@Id

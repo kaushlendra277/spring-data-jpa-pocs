@@ -64,5 +64,8 @@ class StudentRepositoryTest {
 
 #### Note -
 ```note
-	- @SqlDelete , @SqlDeleteAll are hibernate specific annotation
+	1. @SqlDelete , @SqlDeleteAll are hibernate specific annotation
+	2. FROM Spring boot (v2.2.5.RELEASE) @SQLDelete can perform all delete operation
+	i.e we dont need to use @SqlDelteAll
+	thats why we have kept @SqlDelteAll commented in above Student entity.
 ```
