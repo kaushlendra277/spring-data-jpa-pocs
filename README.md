@@ -2,67 +2,67 @@
 
 ### Problem Statement
 ```problem-statement
-	Using EntityManager to mass update
+	Using @SqlDelete and @SqlDeleteAll for soft delete operation(s).
 ```
+### Pre-Populate data
+
+```sql
+	INSERT INTO statuses (id) VALUES (1)
+	;
+	INSERT INTO statuses (id) VALUES (2)
+	;
+	INSERT INTO statuses (id) VALUES (3)
+```
+
+### Java files
+
 ```java
 
+@Entity
+@Table(name = "students")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@SQLDelete(sql = "UPDATE students SET status_id = 3 WHERE id = ?") // NOTE THIS
+public class Student extends BaseEntity {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+	
+	private String name;
+
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + "]";
+	}
+
+}
+
+
 @SpringBootTest
-class StudentEntityManagerTest {
+class StudentRepositoryTest {
 
 	@Autowired
-	private StudentEntityManager studentEntityManager;
+	private StudentRepository studentRepository;
 	
 	@Test
-	void test() {
-		Student request = Student.builder().name("KSC").build();
-		studentEntityManager.createStudent(request );
+	void test_SoftDeleteStudentById() {
+		Student entity = new Student();
+		entity.setName("KSC");
 		
-		Student getStudent = studentEntityManager.getStudentById(1L);
-		System.out.println(getStudent);
+		Student savedEntity = studentRepository.save(entity);
+		studentRepository.delete(savedEntity);
 		
-		studentEntityManager.updateStudentsByIds(1L, 2L, 3L);
-		
-		getStudent = studentEntityManager.getStudentById(1L);
-		System.out.println(getStudent);
 	}
 
 }
 
-@Repository
-@Transactional
-public class StudentEntityManager {
-
-	@Autowired
-	private EntityManager em;
-	
-	public void createStudent(Student request) {
-		em.persist(request);
-	}
-	
-	public Student getStudentById(Long id) {
-		TypedQuery<Student> query = 
-		em.createQuery("Select  c  From Student c where id = "+id, Student.class);
-		return query.getResultList().get(0);
-	}
-	
-	public void updateStudentsByIds(Long... ids) {
-		StringJoiner joiner = new StringJoiner(", "," ( "," )");
-		Stream.of(ids).forEach(id -> joiner.add(id+""));
-		Query query = em.createQuery("Update Student set name = 'new-name'  WHERE id IN "+joiner.toString());
-		query.executeUpdate();
-	}
-}
-```
-
-
-### RESOLUTION:
-```resolution 
-	- refer above StudentEntityManagerTest.java
 ```
 
 #### Note -
 ```note
-	- @Transaction over StudentEntityManager is mandatory 
-	because we are createing and updating Student records
-
+	- @SqlDelete , @SqlDeleteAll are hibernate specific annotation
 ```
