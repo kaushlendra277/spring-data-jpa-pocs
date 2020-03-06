@@ -61,6 +61,10 @@ class StudentRepositoryTest {
 }
 
 ```
+### RESOLUTION:
+```resolution 
+	- refer above StudentRepositoryTest.java
+```
 
 #### Note -
 ```note
