@@ -1,5 +1,8 @@
 package poc.spring.data.jpa.rest.entities.repos;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,6 +27,8 @@ class StudentRepositoryTest {
 		Student savedEntity = studentRepository.save(entity);
 		studentRepository.deleteById(savedEntity.getId());
 		
+		Optional<Student> getStudent = studentRepository.findById(savedEntity.getId());
+		assertThat(getStudent.get().getStatus().getId() == 3);
 	}
 	
 	@Test
@@ -33,7 +38,8 @@ class StudentRepositoryTest {
 		
 		Student savedEntity = studentRepository.save(entity);
 		studentRepository.delete(savedEntity);
-		
+		Optional<Student> getStudent = studentRepository.findById(savedEntity.getId());
+		assertThat(getStudent.get().getStatus().getId() == 3);
 	}
 	
 	@Test
@@ -44,7 +50,8 @@ class StudentRepositoryTest {
 		Student savedEntity = studentRepository.save(entity);
 		// studentRepository.deleteAll(Stream.of(savedEntity).collect(Collectors.toList()));
 		studentRepository.deleteAll();
-		
+		Optional<Student> getStudent = studentRepository.findById(savedEntity.getId());
+		assertThat(getStudent.get().getStatus().getId() == 3);
 	}
 
 }
